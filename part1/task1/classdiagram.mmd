@@ -1,5 +1,6 @@
 classDiagram
 class BaseModel {
+    <<abstract>>
     +Id: UUID
     +CreatedAt: datetime
     +UpdatedAt: datetime
@@ -19,6 +20,7 @@ class User {
     +isAdmin(): bool
     +setAdminStatus(isAdmin: bool): void
     +getReviews(): List<Review>
+    +createPlace(): Place
 }
 
 class Place {
