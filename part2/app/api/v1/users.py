@@ -59,6 +59,6 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         try:
             facade.update_user(user_id, user_data)
-            return {"message": "User updated successfully"}, 200
+            return user.to_dict(), 200
         except Exception as e:
-            return {'error': str(e)}
+            return {'error': str(e)}, 400

@@ -2,6 +2,8 @@ from .basemodel import BaseModel
 import re
 
 class User(BaseModel):
+    emails = set()
+
     def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
         self.first_name = first_name
@@ -13,29 +15,29 @@ class User(BaseModel):
     
     @property
     def first_name(self):
-        return self._first_name
+        return self.__first_name
     
     @first_name.setter
     def first_name(self, value):
         if not isinstance(value, str):
             raise TypeError("First name must be a string")
         super().is_max_length('First name', value, 50)
-        self._first_name = value
+        self.__first_name = value
 
     @property
     def last_name(self):
-        return self._last_name
+        return self.__last_name
 
     @last_name.setter
     def last_name(self, value):
         if not isinstance(value, str):
             raise TypeError("Last name must be a string")
         super().is_max_length('Last name', value, 50)
-        self._last_name = value
+        self.__last_name = value
 
     @property
     def email(self):
-        return self._email
+        return self.__email
 
     @email.setter
     def email(self, value):
@@ -43,17 +45,22 @@ class User(BaseModel):
             raise TypeError("Email must be a string")
         if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
             raise ValueError("Invalid email format")
-        self._email = value
+        if value in User.emails:
+            raise ValueError("Email already exists")
+        if hasattr(self, "_User__email"):
+            User.emails.discard(self.__email)
+        self.__email = value
+        User.emails.add(value)
 
     @property
     def is_admin(self):
-        return self._is_admin
+        return self.__is_admin
     
     @is_admin.setter
     def is_admin(self, value):
         if not isinstance(value, bool):
             raise TypeError("Is Admin must be a boolean")
-        self._is_admin = value
+        self.__is_admin = value
 
     def add_place(self, place):
         """Add an amenity to the place."""

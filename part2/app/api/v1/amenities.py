@@ -21,9 +21,11 @@ class AmenityList(Resource):
         existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
         if existing_amenity:
             return {'error': 'Invalid input data'}, 400
-        
-        new_amenity = facade.create_amenity(amenity_data)
-        return new_amenity.to_dict(), 201
+        try:
+            new_amenity = facade.create_amenity(amenity_data)
+            return new_amenity.to_dict(), 201
+        except Exception as e:
+            return {'error': str(e)}, 400
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
@@ -52,5 +54,8 @@ class AmenityResource(Resource):
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
-        facade.update_amenity(amenity_id, amenity_data)
-        return {"message": "Amenity updated successfully"}, 200
+        try:
+            facade.update_amenity(amenity_id, amenity_data)
+            return {"message": "Amenity updated successfully"}, 200
+        except Exception as e:
+            return {'error': str(e)}, 400

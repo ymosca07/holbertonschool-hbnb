@@ -16,6 +16,8 @@ class Review(BaseModel):
 	
 	@text.setter
 	def text(self, value):
+		if not value:
+			raise ValueError("Text cannot be empty")
 		if not isinstance(value, str):
 			raise TypeError("Text must be a string")
 		self._text = value

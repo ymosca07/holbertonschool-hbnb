@@ -13,6 +13,8 @@ class Amenity(BaseModel):
 	def name(self, value):
 		if not isinstance(value, str):
 			raise TypeError("Name must be a string")
+		if not value:
+			raise ValueError("Name cannot be empty")
 		super().is_max_length('Name', value, 50)
 		self._name = value
 
