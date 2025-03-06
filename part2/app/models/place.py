@@ -15,7 +15,7 @@ class Place(BaseModel):
 
     @property
     def title(self):
-        return self._title
+        return self.__title
     
     @title.setter
     def title(self, value):
@@ -24,11 +24,11 @@ class Place(BaseModel):
         if not isinstance(value, str):
             raise TypeError("Title must be a string")
         super().is_max_length('title', value, 100)
-        self._title = value
+        self.__title = value
 
     @property
     def price(self):
-        return self._price
+        return self.__price
     
     @price.setter
     def price(self, value):
@@ -36,39 +36,39 @@ class Place(BaseModel):
             raise TypeError("Price must be a float")
         if value < 0:
             raise ValueError("Price must be positive.")
-        self._price = value
+        self.__price = value
 
     @property
     def latitude(self):
-        return self._latitude
+        return self.__latitude
     
     @latitude.setter
     def latitude(self, value):
         if not isinstance(value, float):
             raise TypeError("Latitude must be a float")
         super().is_between("latitude", value, -90, 90)
-        self._latitude = value
+        self.__latitude = value
     
     @property
     def longitude(self):
-        return self._longitude
+        return self.__longitude
     
     @longitude.setter
     def longitude(self, value):
         if not isinstance(value, float):
             raise TypeError("Longitude must be a float")
         super().is_between("longitude", value, -180, 180)
-        self._longitude = value
+        self.__longitude = value
 
     @property
     def owner(self):
-        return self._owner
+        return self.__owner
     
     @owner.setter
     def owner(self, value):
         if not isinstance(value, User):
             raise TypeError("Owner must be a user instance")
-        self._owner = value
+        self.__owner = value
 
     def add_review(self, review):
         """Add a review to the place."""

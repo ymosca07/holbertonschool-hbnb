@@ -7,7 +7,7 @@ class Amenity(BaseModel):
 
 	@property
 	def name(self):
-		return self._name
+		return self.__name
 
 	@name.setter
 	def name(self, value):
@@ -16,7 +16,7 @@ class Amenity(BaseModel):
 		if not value:
 			raise ValueError("Name cannot be empty")
 		super().is_max_length('Name', value, 50)
-		self._name = value
+		self.__name = value
 
 	def update(self, data):
 		return super().update(data)
