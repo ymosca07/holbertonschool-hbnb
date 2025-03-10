@@ -78,6 +78,12 @@ class PlaceResource(Resource):
         """Update a place's information"""
         place_data = api.payload
         place = facade.get_place(place_id)
+
+        user_id = get_jwt_identity()
+
+        if user_id['id'] != place.owner_id:
+            return {'error': 'Only the owner of the place can modify its information'}, 400
+
         if not place:
             return {'error': 'Place not found'}, 404
         try:
