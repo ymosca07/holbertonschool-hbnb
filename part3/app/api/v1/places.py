@@ -34,6 +34,7 @@ class PlaceList(Resource):
     @api.expect(place_model)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
+    @api.param('Authorization', 'Bearer <token>', type='string', location='header')
     @jwt_required()
     def post(self):
         """Register a new place"""
@@ -73,6 +74,7 @@ class PlaceResource(Resource):
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
+    @api.param('Authorization', 'Bearer <token>', type='string', location='header')
     @jwt_required()
     def put(self, place_id):
         """Update a place's information"""
