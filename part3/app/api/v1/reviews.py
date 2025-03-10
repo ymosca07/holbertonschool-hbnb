@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
 api = Namespace('reviews', description='Review operations')
 
@@ -68,14 +69,22 @@ class ReviewResource(Resource):
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
+    @api.param('Authorization', 'Bearer <token>', type='string', location='header')
+    @jwt_required()
     def delete(self, review_id):
         """Delete a review"""
         review = facade.get_review(review_id)
+
+        user_id = get_jwt_identity()['id']
+
         if not review:
             return {'error': 'Review not found'}, 404
         
         try:
-            facade.delete_review(review_id)
-            return {'message': 'Review deleted successfully'}, 200
+            if user_id != review.user.id:
+                return {'error': 'Only the owner of the review can delete'}, 400
+            else:
+                facade.delete_review(review_id)
+                return {'message': 'Review deleted successfully'}, 200
         except Exception as e:
             return {'error': str(e)}, 400
