@@ -24,7 +24,7 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
+    'owner_id': fields.String(description='ID of the owner'),
     'owner': fields.Nested(user_model, description='Owner details'),
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
@@ -39,6 +39,11 @@ class PlaceList(Resource):
         """Register a new place"""
 
         place_data = api.payload
+
+        if "owner" in place_data or "owner_id" in place_data:
+            return {'error': 'Invalid input data'}, 400
+
+        place_data['owner_id'] = get_jwt_identity()['id']
         owner = place_data.get('owner_id', None)
 
         if owner is None or len(owner) == 0:
@@ -72,9 +77,9 @@ class PlaceResource(Resource):
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
-    @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
-    @api.param('Authorization', 'Bearer <token>', type='string', location='header')
+    @api.response(403, 'Unauthorized action.')
+    @api.response(404, 'Place not found')
     @jwt_required()
     def put(self, place_id):
         """Update a place's information"""
@@ -84,10 +89,10 @@ class PlaceResource(Resource):
         user_id = get_jwt_identity()['id']
 
         if user_id != place.owner.id:
-            return {'error': 'Only the owner of the place can modify its information'}, 400
+            return {'error': 'Unauthorized action.'}, 403
 
         if "owner_id" in place_data:
-            return {'error': 'Forbidden access'}, 400
+            return {'error': 'Invalid input data'}, 400
 
         if not place:
             return {'error': 'Place not found'}, 404
@@ -101,8 +106,8 @@ class PlaceResource(Resource):
 class PlaceAmenities(Resource):
     @api.expect(amenity_model)
     @api.response(200, 'Amenities added successfully')
-    @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'Place not found')
     def post(self, place_id):
         amenities_data = api.payload
         if not amenities_data or len(amenities_data) == 0:

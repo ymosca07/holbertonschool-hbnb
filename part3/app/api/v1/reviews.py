@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
 api = Namespace('reviews', description='Review operations')
 
@@ -16,6 +17,7 @@ class ReviewList(Resource):
     @api.expect(review_model)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def post(self):
         """Register a new review"""
         review_data = api.payload
@@ -26,7 +28,11 @@ class ReviewList(Resource):
         if not user:
             return {'error': 'User not found'}, 400
         if place.owner.id == user.id:
-            return {'error': 'User cannot review their own place'}, 400
+            return {'error': 'You cannot review your own place.'}, 400
+        list_of_reviews = facade.get_reviews_by_place(place.id)
+        for review in list_of_reviews:
+                if review.user.id == user.id:
+                    return {'error': 'You have already reviewed this place.'}, 400
         try:
             new_review = facade.create_review(review_data)
             return new_review.to_dict(), 201
@@ -51,15 +57,20 @@ class ReviewResource(Resource):
 
     @api.expect(review_model)
     @api.response(200, 'Review updated successfully')
-    @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action.')
+    @api.response(404, 'Review not found')
+    @jwt_required()
     def put(self, review_id):
         """Update a review's information"""
         review_data = api.payload
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
-        
+        user_id = get_jwt_identity()['id']
+        if user_id != review.user.id:
+            return {'error': 'Unauthorized action.'}, 403
+
         try:
             facade.update_review(review_id, review_data)
             return {'message': 'Review updated successfully'}, 200

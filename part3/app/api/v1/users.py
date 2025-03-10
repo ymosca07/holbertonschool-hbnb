@@ -52,8 +52,8 @@ class UserResource(Resource):
 
     @api.expect(user_model)
     @api.response(200, 'User updated successfully')
-    @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'User not found')
     def put(self, user_id):
         user_data = api.payload
         user = facade.get_user(user_id)
