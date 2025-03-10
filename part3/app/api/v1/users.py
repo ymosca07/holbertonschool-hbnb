@@ -55,8 +55,8 @@ class UserResource(Resource):
     @api.response(200, 'User updated successfully')
     @api.response(404, 'User not found')
     @api.param('Authorization', 'Bearer <token>', type='string', location='header')
-    @jwt_required()
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, user_id):
         user_data = api.payload
         user = facade.get_user(user_id)
@@ -64,10 +64,10 @@ class UserResource(Resource):
         user_id = get_jwt_identity()['id']
 
         if user_id != user.id:
-            return {'error': 'Only user can modify his informations'}, 400
+            return {'error': 'Unauthorized action.'}, 403
         
         if "user_id" in user_data:
-            return {'error': 'Forbidden access'}, 400
+            return {'error': 'You cannot modify email or password.'}, 400
 
         if not user:
             return {'error': 'User not found'}, 404
