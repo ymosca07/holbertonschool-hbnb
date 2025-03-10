@@ -80,11 +80,11 @@ class ReviewResource(Resource):
         if not review:
             return {'error': 'Review not found'}, 404
         
+        if user_id != review.user.id:
+            return {'error': 'Only the owner of the review can delete'}, 400
+
         try:
-            if user_id != review.user.id:
-                return {'error': 'Only the owner of the review can delete'}, 400
-            else:
-                facade.delete_review(review_id)
-                return {'message': 'Review deleted successfully'}, 200
+            facade.delete_review(review_id)
+            return {'message': 'Review deleted successfully'}, 200
         except Exception as e:
             return {'error': str(e)}, 400
