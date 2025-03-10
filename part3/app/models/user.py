@@ -1,6 +1,5 @@
 from .basemodel import BaseModel
 import re
-from flask_bcrypt import Bcrypt
 
 class User(BaseModel):
     emails = set()
@@ -17,11 +16,13 @@ class User(BaseModel):
 
     def hash_password(self, password):
         """Hashes the password before storing it."""
-        self.password = Bcrypt.generate_password_hash(password).decode('utf-8')
+        from app import bcrypt
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
-        return Bcrypt.check_password_hash(self.password, password)
+        from app import bcrypt
+        return bcrypt.check_password_hash(self.password, password)
 
     @property
     def first_name(self):
