@@ -64,32 +64,33 @@ class UserResource(Resource):
     def put(self, user_id):
         """Update a User"""
 
+        from app import bcrypt
+        
         user_data = api.payload
 
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
 
-        # user_identity = get_jwt_identity()['id']
-        # print(user_identity)
-
-        # if user_identity != user.id:
-        #     return {'Unauthorized action.'}, 403
-
-        # print(get_jwt_identity()['id'])
-        # print("---")
-        # print(user_id)
-        # print("---")
-        # print(user.id)
-
+        user_id = get_jwt_identity()['id']
+        if user_id != user.id:
+            return {'Unauthorized action.'}, 403
+        
         if "user_id" in user_data:
             return {'You cannot modify id'}, 403
-        if "email" in user_data or "password" in user_data:
+        
+        if user.email != user_data["email"]:
+           return {"error": "You cannot modify email or password."}, 400
+        else:
+            user_data.pop("email")
+
+        if not bcrypt.check_password_hash(user.password, user_data["password"]):  
             return {"error": "You cannot modify email or password."}, 400
+        else:
+            user_data.pop("password")
 
         try:
             facade.update_user(user_id, user_data)
             return user.to_dict(), 200
-
         except Exception as e:
             return {'error': str(e)}, 400
