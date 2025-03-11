@@ -58,6 +58,8 @@ class UserResource(Resource):
     @jwt_required()
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
+        from app import bcrypt
+        
         user_data = api.payload
 
         user = facade.get_user(user_id)
@@ -71,9 +73,14 @@ class UserResource(Resource):
             return {'You cannot modify id'}, 403
         
         if user.email != user_data["email"]:
-           return {"error": "You cannot modify email or password."}, 403
+           return {"error": "You cannot modify email or password."}, 400
         else:
             user_data.pop("email")
+
+        if not bcrypt.check_password_hash(user.password, user_data["password"]):  
+            return {"error": "You cannot modify email or password."}, 400
+        else:
+            user_data.pop("password")
 
         if not user:
             return {'error': 'User not found'}, 404
