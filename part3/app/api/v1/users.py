@@ -59,15 +59,21 @@ class UserResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
         user_data = api.payload
+
         user = facade.get_user(user_id)
 
         user_id = get_jwt_identity()['id']
 
         if user_id != user.id:
-            return {'error': 'Only user can modify his informations'}, 400
+            return {'Unauthorized action.'}, 403
         
         if "user_id" in user_data:
-            return {'error': 'Forbidden access'}, 400
+            return {'You cannot modify id'}, 403
+        
+        if user.email != user_data["email"]:
+           return {"error": "You cannot modify email or password."}, 403
+        else:
+            user_data.pop("email")
 
         if not user:
             return {'error': 'User not found'}, 404
