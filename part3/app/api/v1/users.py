@@ -59,12 +59,17 @@ class UserResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
         from app import bcrypt
-        
+
         user_data = api.payload
 
         user = facade.get_user(user_id)
 
         user_id = get_jwt_identity()['id']
+
+        user_id_from_token = get_jwt_identity().get("id")
+
+        if user_id_from_token != user.id:
+            return {"error": "Unauthorized action"}, 403
 
         if user_id != user.id:
             return {'Unauthorized action.'}, 403
