@@ -109,7 +109,7 @@ class ReviewResource(Resource):
         if user_id_from_token != review.user.id:
             return {"error": "Unauthorized action"}, 403
         if user_id != review.user.id:
-            return {'Unauthorized action.'}, 403
+            return {'error': 'Unauthorized action.'}, 403
 
         try:
             facade.delete_review(review_id)
