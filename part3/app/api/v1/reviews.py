@@ -104,6 +104,10 @@ class ReviewResource(Resource):
             return {'error': 'Review not found'}, 404
 
         user_id = get_jwt_identity()['id']
+        user_id_from_token = get_jwt_identity().get("id")
+
+        if user_id_from_token != review.user.id:
+            return {"error": "Unauthorized action"}, 403
         if user_id != review.user.id:
             return {'Unauthorized action.'}, 403
 

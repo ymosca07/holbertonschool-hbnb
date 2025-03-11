@@ -59,13 +59,14 @@ class UserResource(Resource):
     @api.expect(user_model)
     @api.response(200, 'User updated successfully')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'User not found')
     @jwt_required()
     def put(self, user_id):
         """Update a User"""
 
         from app import bcrypt
-        
+
         user_data = api.payload
 
         user = facade.get_user(user_id)
@@ -73,6 +74,11 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
 
         user_id = get_jwt_identity()['id']
+        user_id_from_token = get_jwt_identity().get("id")
+
+        if user_id_from_token != user.id:
+            return {"error": "Unauthorized action"}, 403
+
         if user_id != user.id:
             return {'Unauthorized action.'}, 403
         
