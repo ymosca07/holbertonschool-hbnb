@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from flask import request
 
 api = Namespace('users', description='User operations')
 
@@ -87,5 +88,31 @@ class UserResource(Resource):
         try:
             facade.update_user(user_id, user_data)
             return user.to_dict(), 200
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+@api.route('/users/')
+class AdminUserCreate(Resource):
+    @jwt_required()
+    def post(self):
+        """Register a user by admin"""
+        current_user = get_jwt_identity()
+
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+
+        user_data = request.json
+        email = user_data.get('email')
+
+        # Check if email is already in use
+        if facade.get_user_by_email(email):
+            return {'error': 'Email already registered'}, 400
+        
+        password = user_data.get('password')
+        
+        try:
+            new_user = facade.create_user(user_data)
+            new_user.hash_password(password)
+            return {"message" : "User created by admin"}, 201
         except Exception as e:
             return {'error': str(e)}, 400
