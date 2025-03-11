@@ -63,8 +63,10 @@ class PlaceList(Resource):
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
+
         places = facade.get_all_places()
         return [place.to_dict() for place in places], 200
+
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -134,14 +136,16 @@ class PlaceAmenities(Resource):
             place.add_amenity(amenity)
         return {'message': 'Amenities added successfully'}, 200
 
+
 @api.route('/<place_id>/reviews/')
 class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get all reviews for a specific place"""
+
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
+
         return [review.to_dict() for review in place.reviews], 200
-    
