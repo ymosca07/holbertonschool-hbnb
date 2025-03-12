@@ -35,14 +35,15 @@ class UserList(Resource):
 
         except Exception as e:
             return {'error': str(e)}, 400
-        
+
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Retrieve a list of users"""
 
         users = facade.get_users()
         return [user.to_dict() for user in users], 200
-    
+
+
 @api.route('/<user_id>')
 class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
@@ -94,5 +95,36 @@ class UserResource(Resource):
         try:
             facade.update_user(user_id, user_data)
             return user.to_dict(), 200
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+
+@api.route('/users/')
+class AdminUserCreate(Resource):
+    @api.response(201, 'User created by admin')
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Admin privileges required')
+    @jwt_required()
+    def post(self):
+        """Register a user by admin"""
+
+        current_user = get_jwt_identity()
+
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+
+        user_data = api.payload
+        email = user_data.get('email')
+
+        # Check if email is already in use
+        if facade.get_user_by_email(email):
+            return {'error': 'Email already registered'}, 400
+
+        password = user_data.get('password')
+
+        try:
+            new_user = facade.create_user(user_data)
+            new_user.hash_password(password)
+            return {"message" : "User created by admin"}, 201
         except Exception as e:
             return {'error': str(e)}, 400
