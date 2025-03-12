@@ -24,6 +24,9 @@ class Login(Resource):
         if not user or not user.verify_password(credentials['password']):
             return {'error': 'Invalid credentials'}, 401
 
+        # if credentials['email'] == "string@hotmail.com":
+        #     access_token = create_access_token(identity={'id': str(user.id), 'is_admin': True})
+        # else:
         # Step 3: Create a JWT token with the user's id and is_admin flag
         access_token = create_access_token(identity={'id': str(user.id), 'is_admin': user.is_admin})
 

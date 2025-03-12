@@ -78,10 +78,10 @@ class UserResource(Resource):
 
         if user_id != user.id:
             return {'error': 'Unauthorized action.'}, 403
-        
+
         if "user_id" in user_data:
             return {'error': 'You cannot modify id'}, 403
-        
+
         if user.email != user_data["email"]:
            return {"error": "You cannot modify email or password."}, 400
         else:

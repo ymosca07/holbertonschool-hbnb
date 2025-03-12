@@ -47,8 +47,8 @@ class AmenityResource(Resource):
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
-    @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'Amenity not found')
     def put(self, amenity_id):
         amenity_data = api.payload
         amenity = facade.get_amenity(amenity_id)

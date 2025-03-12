@@ -94,6 +94,7 @@ class ReviewResource(Resource):
             return {'error': str(e)}, 400
 
     @api.response(200, 'Review deleted successfully')
+    @api.response(400, 'Invalid input data')
     @api.response(403, 'Unauthorized action')
     @api.response(404, 'Review not found')
     @jwt_required()
