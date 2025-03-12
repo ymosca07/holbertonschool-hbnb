@@ -1,18 +1,17 @@
+from app import db
 from .basemodel import BaseModel
 import re
 
 class User(BaseModel):
     emails = set()
 
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
-        super().__init__()
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
-        self.is_admin = is_admin
-        self.places = []
-        self.reviews = []
+    __tablename__ = 'users'
+
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     def hash_password(self, password):
         """Hashes the password before storing it."""
