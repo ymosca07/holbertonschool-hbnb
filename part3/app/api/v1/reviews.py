@@ -27,18 +27,19 @@ class ReviewList(Resource):
         place = facade.get_place(review_data['place_id'])
         if not place:
             return {'error': 'Place not found'}, 404
-
         user = facade.get_user(review_data['user_id'])
         if not user:
             return {'error': 'User not found'}, 404
 
+        if get_jwt_identity()['id'] != review_data['user_id']:
+            return {'error': 'Invalid input data'}, 400
         if place.owner.id == user.id:
             return {'error': 'You cannot review your own place.'}, 400
 
         list_of_reviews = facade.get_reviews_by_place(place.id)
         for review in list_of_reviews:
-                if review.user.id == user.id:
-                    return {'error': 'You have already reviewed this place.'}, 400
+            if review.user.id == user.id:
+                return {'error': 'You have already reviewed this place.'}, 400
 
         try:
             new_review = facade.create_review(review_data)
@@ -103,11 +104,7 @@ class ReviewResource(Resource):
         if not review:
             return {'error': 'Review not found'}, 404
 
-        user_id = get_jwt_identity()['id']
-        user_id_from_token = get_jwt_identity().get("id")
-
-        if user_id_from_token != review.user.id:
-            return {"error": "Unauthorized action"}, 403
+        user_id = get_jwt_identity().get("id")
         if user_id != review.user.id:
             return {'error': 'Unauthorized action.'}, 403
 

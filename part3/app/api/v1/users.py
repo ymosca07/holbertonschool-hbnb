@@ -73,11 +73,7 @@ class UserResource(Resource):
         if not user:
             return {'error': 'User not found'}, 404
 
-        user_id = get_jwt_identity()['id']
-        user_id_from_token = get_jwt_identity().get("id")
-
-        if user_id_from_token != user.id:
-            return {"error": "Unauthorized action"}, 403
+        user_id = get_jwt_identity().get("id")
 
         if user_id != user.id:
             return {'error': 'Unauthorized action.'}, 403
