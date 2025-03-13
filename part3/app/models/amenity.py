@@ -1,9 +1,12 @@
 from .basemodel import BaseModel
+from app import db
 
 class Amenity(BaseModel):
-	def __init__(self, name):
-		super().__init__()	
-		self.name = name
+	
+	__tablename__ = 'amenity'
+
+	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	name = db.Column(db.String, nullable=False)
 
 	@property
 	def name(self):
