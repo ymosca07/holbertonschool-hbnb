@@ -65,11 +65,17 @@ class HBnBFacade:
         self.place_repo.add(place)
         user.add_place(place)
         if amenities:
-            for amenity in amenities:
-                place.add_amenity(amenity)
+            for a in amenities:
+                amenity = self.get_amenity(a['id'])
+                if amenity:
+                    place.add_amenity(amenity)
+        self.place_repo.save()
         return place
 
     def get_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if place:
+            place.amenities
         return self.place_repo.get(place_id)
 
     def get_all_places(self):

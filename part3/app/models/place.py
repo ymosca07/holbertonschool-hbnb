@@ -17,11 +17,11 @@ class Place(BaseModel):
     reviews = db.relationship('Review', backref='place', lazy=True)
 
     amenities = db.relationship(
-        'Amenity',
-        secondary=place_amenity,
-        lazy='subquery',
-        backref=db.backref('places', lazy=True)
-    )
+            'Amenity', 
+            secondary=place_amenity, 
+            lazy='subquery',
+            backref=db.backref('places', lazy=True)
+        )
 
     @property
     def description(self):

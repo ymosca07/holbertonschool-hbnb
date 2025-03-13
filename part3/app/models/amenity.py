@@ -5,7 +5,6 @@ class Amenity(BaseModel):
 
     __tablename__ = 'amenities'
 
-    _id = db.Column(db.Integer, primary_key=True)
     _name = db.Column(db.String(100), nullable=False)
 
     @property
