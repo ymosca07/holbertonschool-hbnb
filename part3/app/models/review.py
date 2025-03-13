@@ -7,7 +7,6 @@ class Review(BaseModel):
 
     __tablename__ = 'reviews'
 
-    _id = db.Column(db.Integer, primary_key=True)
     _text = db.Column(db.String(1000), nullable=False)
     _rating = db.Column(db.Integer, nullable=False)
     _place_id = db.Column(db.Integer, db.ForeignKey('places.id'), nullable=False)

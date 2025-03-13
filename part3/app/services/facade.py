@@ -10,10 +10,10 @@ from app.persistence.repository import SQLAlchemyRepository
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = UserRepository()
-        self.place_repo = PlaceRepository()
-        self.review_repo = ReviewRepository()
-        self.amenity_repo = AmenityRepository()
+        self.user_repo = UserRepository(User)
+        self.place_repo = PlaceRepository(Place)
+        self.review_repo = ReviewRepository(Review)
+        self.amenity_repo = AmenityRepository(Amenity)
 
     # USER
     def create_user(self, user_data):
@@ -28,7 +28,7 @@ class HBnBFacade:
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute('email', email)
+        return self.user_repo.get_by_attribute('_email', email)
 
     def update_user(self, user_id, user_data):
         self.user_repo.update(user_id, user_data)

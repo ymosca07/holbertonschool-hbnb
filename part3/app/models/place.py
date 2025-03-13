@@ -6,18 +6,22 @@ class Place(BaseModel):
 
     __tablename__ = 'places'
 
-
-    _id = db.Column(db.Integer, primary_key=True)
     _title = db.Column(db.String(100), nullable=False)
     _description = db.Column(db.String(500), nullable=True)
     _price = db.Column(db.Float, nullable=False)
     _latitude = db.Column(db.Float, nullable=False)
     _longitude = db.Column(db.Float, nullable=False)
-    _owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    # _owner = db.relationship('User', backref='places')
-    # _reviews = db.relationship('Review', backref='place', cascade='all, delete-orphan')
-    # _amenities = db.relationship('Amenity', backref='place', lazy=True)
 
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        if value is not None and not isinstance(value, str):
+            raise TypeError("Description must be a string")
+        super().is_max_length("description", value, 500)
+        self._description = value
 
     @property
     def title(self):
@@ -69,7 +73,7 @@ class Place(BaseModel):
     @property
     def owner(self):
         return self._owner
-    
+
     @owner.setter
     def owner(self, value):
         if not isinstance(value, User):
