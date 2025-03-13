@@ -211,11 +211,13 @@ class AdminReviewModify(Resource):
         if not current_user.get('is_admin'):
             return {'error': 'Admin privileges required'}, 403
 
-        review_data = api.payload
-
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
+
+
+        review_data = api.payload
+
 
         try:
             facade.update_review(review_id, review_data)

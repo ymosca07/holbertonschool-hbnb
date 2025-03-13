@@ -1,4 +1,5 @@
 from app import db
+import uuid
 from .basemodel import BaseModel
 import re
 
