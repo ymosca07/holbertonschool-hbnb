@@ -12,12 +12,21 @@ jwt = JWTManager()
 
 bcrypt = Bcrypt()
 
+authorizations = {
+    "Bearer Auth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Entrer le token sous la forme: Bearer <votre_token>"
+    }
+}
+
 
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
     app.config['JWT_SECRET_KEY'] = 'my_secret_keys'
     app.config.from_object(config_class)
-    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
+    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API', security="Bearer Auth", authorizations=authorizations)
 
     api.add_namespace(users_ns, path='/api/v1/users')
     api.add_namespace(places_ns, path='/api/v1/places')

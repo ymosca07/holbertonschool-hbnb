@@ -26,7 +26,7 @@ place_model = api.model('Place', {
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
     'owner': fields.Nested(user_model, description='Owner details'),
-    'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
+    'amenities': fields.List(fields.Nested(amenity_model), required=True, description="List of amenities ID's")
 })
 
 @api.route('/')
@@ -39,7 +39,8 @@ class PlaceList(Resource):
         """Register a new place"""
 
         place_data = api.payload
-        owner = place_data.get('owner_id', None)
+        owner = get_jwt_identity()
+        place_data["owner_id"]= owner
 
         if owner is None or len(owner) == 0:
             return {'error': 'Invalid input data.'}, 400
