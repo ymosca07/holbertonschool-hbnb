@@ -62,14 +62,15 @@ class HBnBFacade:
                 if not amenity:
                     raise KeyError('Invalid input data')
         place = Place(**place_data)
-        self.place_repo.add(place)
-        user.add_place(place)
         if amenities:
             for a in amenities:
                 amenity = self.get_amenity(a['id'])
                 if amenity:
                     place.add_amenity(amenity)
-        self.place_repo.save()
+
+        self.place_repo.add(place)
+        user.add_place(place)
+
         return place
 
     def get_place(self, place_id):
