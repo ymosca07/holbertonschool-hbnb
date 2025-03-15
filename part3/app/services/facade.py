@@ -3,14 +3,17 @@ from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
 from app.services.repositories.user_repository import UserRepository
+from app.services.repositories.place_repository import PlaceRepository
+from app.services.repositories.review_repository import ReviewRepository
+from app.services.repositories.amenity_repository import AmenityRepository
 from app.persistence.repository import SQLAlchemyRepository
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = UserRepository()
-        self.amenity_repo = SQLAlchemyRepository(Amenity)
-        self.place_repo = SQLAlchemyRepository(Place)
-        self.review_repo = SQLAlchemyRepository(Review)
+        self.user_repo = UserRepository(User)
+        self.place_repo = PlaceRepository(Place)
+        self.review_repo = ReviewRepository(Review)
+        self.amenity_repo = AmenityRepository(Amenity)
 
     # USER
     def create_user(self, user_data):
@@ -25,7 +28,7 @@ class HBnBFacade:
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute('email', email)
+        return self.user_repo.get_by_attribute('_email', email)
 
     def update_user(self, user_id, user_data):
         self.user_repo.update(user_id, user_data)
@@ -59,14 +62,21 @@ class HBnBFacade:
                 if not amenity:
                     raise KeyError('Invalid input data')
         place = Place(**place_data)
+        if amenities:
+            for a in amenities:
+                amenity = self.get_amenity(a['id'])
+                if amenity:
+                    place.add_amenity(amenity)
+
         self.place_repo.add(place)
         user.add_place(place)
-        if amenities:
-            for amenity in amenities:
-                place.add_amenity(amenity)
+
         return place
 
     def get_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if place:
+            place.amenities
         return self.place_repo.get(place_id)
 
     def get_all_places(self):

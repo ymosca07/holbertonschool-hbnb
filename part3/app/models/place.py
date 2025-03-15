@@ -1,21 +1,42 @@
+from app import db
 from .basemodel import BaseModel
 from .user import User
-from app import db
+from .associations import place_amenity
 
 class Place(BaseModel):
 
-    ___tablename__ = 'place'
+    __tablename__ = 'places'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
+    _title = db.Column(db.String(100), nullable=False)
+    _description = db.Column(db.String(500), nullable=True)
+    _price = db.Column(db.Float, nullable=False)
+    _latitude = db.Column(db.Float, nullable=False)
+    _longitude = db.Column(db.Float, nullable=False)
+    _owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+
+    reviews = db.relationship('Review', backref='place', lazy=True)
+
+    amenities = db.relationship(
+            'Amenity', 
+            secondary=place_amenity, 
+            lazy='subquery',
+            backref=db.backref('places', lazy=True)
+        )
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        if value is not None and not isinstance(value, str):
+            raise TypeError("Description must be a string")
+        super().is_max_length("description", value, 500)
+        self._description = value
 
     @property
     def title(self):
-        return self.__title
+        return self._title
     
     @title.setter
     def title(self, value):
@@ -24,11 +45,11 @@ class Place(BaseModel):
         if not isinstance(value, str):
             raise TypeError("Title must be a string")
         super().is_max_length('title', value, 100)
-        self.__title = value
+        self._title = value
 
     @property
     def price(self):
-        return self.__price
+        return self._price
     
     @price.setter
     def price(self, value):
@@ -36,39 +57,39 @@ class Place(BaseModel):
             raise TypeError("Price must be a float")
         if value < 0:
             raise ValueError("Price must be positive.")
-        self.__price = value
+        self._price = value
 
     @property
     def latitude(self):
-        return self.__latitude
+        return self._latitude
     
     @latitude.setter
     def latitude(self, value):
         if not isinstance(value, float):
             raise TypeError("Latitude must be a float")
         super().is_between("latitude", value, -90, 90)
-        self.__latitude = value
+        self._latitude = value
     
     @property
     def longitude(self):
-        return self.__longitude
+        return self._longitude
     
     @longitude.setter
     def longitude(self, value):
         if not isinstance(value, float):
             raise TypeError("Longitude must be a float")
         super().is_between("longitude", value, -180, 180)
-        self.__longitude = value
+        self._longitude = value
 
     @property
     def owner(self):
-        return self.__owner
-    
+        return self._owner
+
     @owner.setter
     def owner(self, value):
         if not isinstance(value, User):
             raise TypeError("Owner must be a user instance")
-        self.__owner = value
+        self._owner = value
 
     def add_review(self, review):
         """Add a review to the place."""
@@ -102,6 +123,6 @@ class Place(BaseModel):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'owner': self.owner.to_dict(),
-            'amenities': self.amenities,
-            'reviews': self.reviews
+            'amenities': [amenity.to_dict() for amenity in self.amenities],
+            'reviews': [review.to_dict() for review in self.reviews]
         }

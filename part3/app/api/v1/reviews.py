@@ -45,6 +45,8 @@ class ReviewList(Resource):
             new_review = facade.create_review(review_data)
             return new_review.to_dict(), 201
 
+        except KeyError as e:
+            return {'error': str(e)}, 404
         except Exception as e:
             return {'error': str(e)}, 400
 

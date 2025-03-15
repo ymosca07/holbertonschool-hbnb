@@ -1,5 +1,4 @@
 from app import db
-import uuid
 from .basemodel import BaseModel
 import re
 
@@ -11,23 +10,35 @@ class User(BaseModel):
     _first_name = db.Column(db.String(50), nullable=False)
     _last_name = db.Column(db.String(50), nullable=False)
     _email = db.Column(db.String(120), nullable=False, unique=True)
-    password = db.Column(db.String(128), nullable=False)
+    _password = db.Column(db.String(128), nullable=False)
     _is_admin = db.Column(db.Boolean, default=False)
+
+    places = db.relationship('Place', backref='owner', lazy=True)
+    reviews = db.relationship('Review', backref='user', lazy=True)
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        from app import bcrypt
+        self._password = bcrypt.generate_password_hash(value).decode('utf-8')
 
     def hash_password(self, password):
         """Hashes the password before storing it."""
         from app import bcrypt
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        return bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
         from app import bcrypt
-        return bcrypt.check_password_hash(self.password, password)
+        return bcrypt.check_password_hash(self._password, password)
 
     @property
     def first_name(self):
         return self._first_name
-    
+
     @first_name.setter
     def first_name(self, value):
         if not isinstance(value, str):
