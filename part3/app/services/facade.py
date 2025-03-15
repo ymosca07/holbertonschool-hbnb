@@ -83,6 +83,14 @@ class HBnBFacade:
         return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
+        if 'amenities' in place_data:
+            amenities = []
+            for amenity in place_data['amenities']:
+                a = self.get_amenity(amenity['id'])  # Récupérer l'objet Amenity
+                if not a:
+                    raise KeyError(f'Amenity {amenity["id"]} not found')
+                amenities.append(a)
+            place_data['amenities'] = amenities
         self.place_repo.update(place_id, place_data)
 
     # REVIEWS

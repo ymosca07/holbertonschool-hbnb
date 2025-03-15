@@ -103,6 +103,7 @@ class AdminUserModify(Resource):
         try:
             facade.update_user(user_id, user_data)
             return user.to_dict(), 200
+
         except Exception as e:
             return {'error': str(e)}, 400
 
@@ -170,7 +171,7 @@ class AdminPlaceModify(Resource):
     @api.response(200, 'Place updated successfully')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Unauthorized action.')
-    @api.response(404, 'Place not found')
+    @api.response(404, 'Place / Amenity not found')
     @jwt_required()
     def put(self, place_id):
         """Modify a place by an Admin"""
@@ -192,6 +193,8 @@ class AdminPlaceModify(Resource):
             facade.update_place(place_id, place_data)
             return {'message': 'Place updated successfully'}, 200
 
+        except KeyError as e:
+            return {'error': str(e)}, 404
         except Exception as e:
             return {'error': str(e)}, 400
 
