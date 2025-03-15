@@ -14,7 +14,8 @@ class Place(BaseModel):
     _longitude = db.Column(db.Float, nullable=False)
     _owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
-    reviews = db.relationship('Review', backref='place', lazy=True)
+    reviews = db.relationship('Review', backref='place', lazy=True, cascade="all, delete-orphan")
+
 
     amenities = db.relationship(
             'Amenity', 
@@ -97,7 +98,8 @@ class Place(BaseModel):
     
     def delete_review(self, review):
         """Add an amenity to the place."""
-        self.reviews.remove(review)
+        if review in self.reviews:
+            self.reviews.remove(review)
 
     def add_amenity(self, amenity):
         """Add an amenity to the place."""

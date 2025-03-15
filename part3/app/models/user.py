@@ -14,7 +14,8 @@ class User(BaseModel):
     _is_admin = db.Column(db.Boolean, default=False)
 
     places = db.relationship('Place', backref='owner', lazy=True)
-    reviews = db.relationship('Review', backref='user', lazy=True)
+    reviews = db.relationship('Review', backref='user', lazy=True, cascade="all, delete-orphan")
+
 
     @property
     def password(self):
