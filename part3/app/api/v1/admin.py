@@ -112,7 +112,7 @@ class AdminUserModify(Resource):
 class AdminAmenityCreate(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Invalid input data / Amenity already existing')
     @api.response(403, 'Admin privileges required')
     @jwt_required()
     def post(self):
@@ -124,9 +124,10 @@ class AdminAmenityCreate(Resource):
 
         amenity_data = api.payload
 
-        existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
-        if existing_amenity:
-            return {'error': 'Invalid input data'}, 400
+        list_of_amenities = facade.get_all_amenities()
+        for amenity in list_of_amenities:
+            if amenity.name == amenity_data['name']:
+                return {'error': 'Amenity already existing'}, 400
 
         try:
             new_amenity = facade.create_amenity(amenity_data)
@@ -140,7 +141,7 @@ class AdminAmenityCreate(Resource):
 class AdminAmenityModify(Resource):
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Invalid input data / Amenity already existing')
     @api.response(403, 'Admin privileges required')
     @api.response(404, 'Amenity not found')
     @jwt_required()
@@ -156,6 +157,11 @@ class AdminAmenityModify(Resource):
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
+
+        list_of_amenities = facade.get_all_amenities()
+        for a in list_of_amenities:
+            if a.name == amenity_data['name']:
+                return {'error': 'Amenity already existing'}, 400
 
         try:
             facade.update_amenity(amenity_id, amenity_data)

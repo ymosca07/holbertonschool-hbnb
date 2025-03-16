@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
 
 api = Namespace('amenities', description='Amenity operations')
@@ -14,13 +15,25 @@ class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
     def post(self):
         """Register a new amenity"""
+
+        current_user = get_jwt_identity()
+
+        # Set is_admin default to False if not exists
+        is_admin = current_user.get('is_admin', False)
+        if not is_admin:
+            return {'error': 'Unauthorized action'}, 403
+
         amenity_data = api.payload
-        
-        existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
-        if existing_amenity:
-            return {'error': 'Invalid input data'}, 400
+
+        list_of_amenities = facade.get_all_amenities()
+        for amenity in list_of_amenities:
+            if amenity.name == amenity_data['name']:
+                return {'error': 'Amenity already existing'}, 400
+
         try:
             new_amenity = facade.create_amenity(amenity_data)
             return new_amenity.to_dict(), 201
@@ -47,13 +60,28 @@ class AmenityResource(Resource):
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Invalid input data / Amenity already existing')
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'Amenity not found')
+    @jwt_required()
     def put(self, amenity_id):
+        current_user = get_jwt_identity()
+
+        # Set is_admin default to False if not exists
+        is_admin = current_user.get('is_admin', False)
+        if not is_admin:
+            return {'error': 'Unauthorized action'}, 403
+
         amenity_data = api.payload
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
+
+        list_of_amenities = facade.get_all_amenities()
+        for a in list_of_amenities:
+            if a.name == amenity_data['name']:
+                return {'error': 'Amenity already existing'}, 400
+
         try:
             facade.update_amenity(amenity_id, amenity_data)
             return {"message": "Amenity updated successfully"}, 200
