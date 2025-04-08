@@ -10,10 +10,16 @@
     font-family: Arial, sans-serif;
 }
 
-body {
-    background-color: #f4f4f4;
-    color: #333;
-}
+:root {
+    --primary-color: #a88b2f;
+    --secondary-color: #ffffff;
+  }
+
+  body {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    font-family: 'Roboto', sans-serif;
+  }
 
 header {
     background-color: #333;
@@ -29,4 +35,18 @@ nav a {
 
 main {
     padding: 2rem;
+}
+
+#place-card {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+#review-card {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
 }
