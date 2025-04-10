@@ -57,6 +57,19 @@
     max-width: 1000px;
     margin: 0 auto;
   }
+
+  #available {
+    font-size: 50px;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+  }
+
+  #filter {
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+  }
   
   footer {
     background-color: var(--dark);
